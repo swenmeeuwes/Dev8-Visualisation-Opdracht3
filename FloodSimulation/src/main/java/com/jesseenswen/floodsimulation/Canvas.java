@@ -14,6 +14,7 @@ import processing.core.PApplet;
 public class Canvas extends PApplet {
     public void setup() {
         size(800, 600);
+        frame.setTitle("Jesse and Swen - Development 8 - Assignment 3 - Flood Simulation");
     }
     public void draw() {
         background(255);
