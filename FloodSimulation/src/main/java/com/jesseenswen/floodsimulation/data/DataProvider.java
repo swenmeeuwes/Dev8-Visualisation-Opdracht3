@@ -21,7 +21,7 @@ import java.io.SequenceInputStream;
 public class DataProvider {
 
     public void getDataAsyncFast(Canvas canvas) {
-        int linesToSkip = 5;
+        int linesToSkip = 25;
 
         Thread thread = new Thread(new Runnable() {
             public void run() {
