@@ -56,7 +56,7 @@ public class DataProvider {
             }
         });
         thread.setPriority(Thread.MIN_PRIORITY);
-        
+
         Thread thread2 = new Thread(new Runnable() {
             public void run() {
                 try {

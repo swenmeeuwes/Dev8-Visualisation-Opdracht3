@@ -5,6 +5,8 @@ package com.jesseenswen.floodsimulation.models;
  * @author swenm_000
  */
 public class Vector3<T> {
+    public static Vector3<Float> Zero = new Vector3<>(0f, 0f, 0f);
+    
     private T x;
     private T y;
     private T z;
@@ -39,5 +41,10 @@ public class Vector3<T> {
 
     public void setZ(T z) {
         this.z = z;
+    }
+    
+    @Override
+    public String toString() {
+        return "Vector3[x: " + x + "; y: " + y + "; z: " + z + "]";
     }
 }
