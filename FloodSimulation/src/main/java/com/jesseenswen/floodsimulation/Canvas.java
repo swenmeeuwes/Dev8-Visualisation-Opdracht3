@@ -3,16 +3,12 @@ package com.jesseenswen.floodsimulation;
 import com.jesseenswen.floodsimulation.data.DataProvider;
 import com.jesseenswen.floodsimulation.models.Vector2;
 import com.jesseenswen.floodsimulation.models.Vector3;
-import java.lang.reflect.Array;
+import com.jesseenswen.floodsimulation.models.datastructures.comparators.DepthComparator;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.PriorityBlockingQueue;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 
 /**
  *
@@ -21,11 +17,19 @@ import processing.core.PGraphics;
 public class Canvas extends PApplet {
 
     public List<Vector3<Float>> data = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // To-Do: Why synchronizedList?? Search!!!!
+    // Answer: SynchronizedList is thread safe
 
+    //public PriorityBlockingQueue<Vector3<Float>> data;
     private DataProvider dataProvider;
     private int lastDrawnPoint = 0;
     private int mappedWaterLevel;
     private float waterLevel = -10f;
+    
+    private DepthComparator comparator = new DepthComparator();
+
+    private boolean isFinished = false;
+
+    private Thread staticMapThread;
 
     public void setup() {
         dataProvider = new DataProvider();
@@ -39,39 +43,45 @@ public class Canvas extends PApplet {
         });
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
+        isFinished = false;
 
-        size(500, 500);
+//        size(500, 500);
+        size(1366, 768);
         clear();
 
         frame.setTitle("Jesse and Swen - Development 8 - Assignment 3 - Flood Simulation");
 
         mappedWaterLevel = (int) map(waterLevel, -10, 14, 0, 255);
-        
+
 //        noSmooth(); // Might make drawing faster
     }
 
     public void draw() {
-        loadStaticMap();
-        
-        fill(255, 125, 0);
-        ellipse(map(92850, 56082, 101861, 0, width), map(436926, 447014, 428548, 40, height - 40), 10, 10);
+        if (!isFinished) {
+            loadStaticMap();
+        }
+
+        //fill(255, 125, 0);
+//        ellipse(map(92850, 56082, 101861, 0, width), map(436926, 447014, 428548, 40, height - 40), 10, 10);
     }
-    
+
     public void keyPressed() {
-        if(keyCode == UP) {
+        if (keyCode == UP) {
             waterLevel += 0.5f;
         }
-        if(keyCode == DOWN) {
+        if (keyCode == DOWN) {
             waterLevel -= 0.5f;
         }
+        
     }
-    
+
     public void keyReleased() {
-        if(keyCode == UP || keyCode == DOWN) {
+        if (keyCode == UP || keyCode == DOWN) {
             lastDrawnPoint = 0;
         }
+        redrawMap();
     }
-    
+
     private void loadStaticMap() {
         fill(255);
         rect(0, 0, width, 32);
@@ -83,15 +93,14 @@ public class Canvas extends PApplet {
         int dataLength = data.size();
 
         // Load until there's no data left
-        while (lastDrawnPoint < dataLength) {
+        while (dataLength > lastDrawnPoint) {
             Vector3<Float> vector = data.get(lastDrawnPoint);
-            
-            if(vector == null) {
+
+            if (vector == null) {
                 System.out.println("!@#$ at " + lastDrawnPoint);
                 lastDrawnPoint++;
                 continue;
             }
-                
 
             // Area size?????
             // 1 --- 2
@@ -107,15 +116,34 @@ public class Canvas extends PApplet {
 
             noStroke();
             int colorValue = (int) map(vector.getZ(), -10, 14, 0, 255);
-            if(vector.getZ() > waterLevel)
+            if (vector.getZ() > waterLevel) {
                 fill(0, colorValue, 255 - colorValue);
-            else
-//                fill(mappedWaterLevel - colorValue, 0, 0);
+            } else //                fill(mappedWaterLevel - colorValue, 0, 0);
+            {
                 fill(255, 55, 0);
+            }
 
             ellipse(mappedVector.getX(), mappedVector.getY(), 1f, 1f); // Scale size with linesToSkip in dataprovider
 
             lastDrawnPoint++;
+        }
+    }
+
+    public void redrawMap() {
+        Collections.sort(data, comparator);
+        Vector3<Float> current = data.get(lastDrawnPoint);
+        while (current.getZ() < waterLevel) {
+            Vector2<Float> mappedVector = new Vector2();
+            mappedVector.setX(map(current.getX(), 56082, 101861, 0, width));
+            mappedVector.setY(map(current.getY(), 447014, 428548, 40, height - 40));
+
+            noStroke();
+            int colorValue = (int) map(current.getZ(), -10, 14, 0, 255);
+            fill(mappedWaterLevel - colorValue, 0, 0);
+            ellipse(mappedVector.getX(), mappedVector.getY(), 1f, 1f);
+
+            lastDrawnPoint++;
+            current = data.get(lastDrawnPoint);
         }
     }
 }

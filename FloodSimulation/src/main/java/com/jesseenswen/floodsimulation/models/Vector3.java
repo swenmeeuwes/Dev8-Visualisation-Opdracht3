@@ -4,7 +4,7 @@ package com.jesseenswen.floodsimulation.models;
  *
  * @author swenm_000
  */
-public class Vector3<T> {
+public class Vector3<T> implements Comparable<Vector3> {
     public static Vector3<Float> Zero = new Vector3<>(0f, 0f, 0f);
     
     private T x;
@@ -47,4 +47,16 @@ public class Vector3<T> {
     public String toString() {
         return "Vector3[x: " + x + "; y: " + y + "; z: " + z + "]";
     }
+
+    @Override
+    public int compareTo(Vector3 t) {
+        if ((Float) this.getZ() < (Float) t.getZ()) {
+            return -1;
+        }
+        if ((Float) this.getZ() > (Float) t.getZ()) {
+            return 1;
+        }
+        return 0;
+    }
+
 }
