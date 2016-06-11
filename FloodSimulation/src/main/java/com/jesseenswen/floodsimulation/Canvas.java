@@ -1,10 +1,12 @@
 package com.jesseenswen.floodsimulation;
 
 import com.jesseenswen.floodsimulation.data.DataProvider;
+import com.jesseenswen.floodsimulation.models.Rect;
 import com.jesseenswen.floodsimulation.models.Vector2;
 import com.jesseenswen.floodsimulation.models.Vector3;
 import com.jesseenswen.floodsimulation.models.datastructures.comparators.DepthComparator;
 import com.jesseenswen.floodsimulation.ui.Button;
+import com.jesseenswen.floodsimulation.ui.UIOverlay;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,25 +20,22 @@ import processing.core.PApplet;
  */
 public class Canvas extends PApplet {
 
-    public List<Vector3<Float>> data = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // To-Do: Why synchronizedList?? Search!!!!
-    // Answer: SynchronizedList is thread safe
+    public List<Vector3<Float>> data = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // SynchronizedList is thread safe
 
-    private SimulationState state;
+    private UIOverlay ui;
+    private Rect<Integer> simulationArea = new Rect<>(0, 40, 500, 500);
 
     private DataProvider dataProvider;
     private int lastDrawnPoint = 0;
     private int mappedWaterLevel;
     private float waterLevel = -10f;
-    
+
     private DepthComparator comparator = new DepthComparator();
 
     private boolean isFinished = false;
 
     private Thread staticMapThread;
-
-    private Button buttonSizeSmall;
-    private Button buttonSizeLarge;
-
+    
     public void setup() {
         dataProvider = new DataProvider();
 
@@ -51,43 +50,62 @@ public class Canvas extends PApplet {
         thread.start();
         isFinished = false;
 
-        buttonSizeSmall = new Button(this, "Size: 500", new Vector2<>(50, 50));
-        buttonSizeLarge = new Button(this, "Size: 1000", new Vector2<>(50, 100));
+        ui = new UIOverlay(this);
+        ui.pushElement(new Button(this, "Size: 500", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 50)) {
+            @Override
+            public void onClick() {
+                // Switch to size: 500
+            }
+        });
+        ui.pushElement(new Button(this, "Size: 1000", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 100)) {
+            @Override
+            public void onClick() {
+                // Switch to size: 1000
+            }
+        });
+        ui.pushElement(new Button(this, "Increase water level", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 200)) {
+            @Override
+            public void onClick() {
+                waterLevel += 0.5f;
+            }
+        });
+        ui.pushElement(new Button(this, "Decrease water level", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 250)) {
+            @Override
+            public void onClick() {
+                waterLevel -= 0.5f;
+            }
+        });
+        ui.pushElement(new Button(this, "Play", new Vector2<>(simulationArea.getX() + 32, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
+            @Override
+            public void onClick() {
+                lastDrawnPoint = 0;
+            }
+        });
 
-        size(500, 500);
+        size(700, 600);
         clear();
 
         frame.setTitle("Jesse and Swen - Development 8 - Assignment 3 - Flood Simulation");
 
         mappedWaterLevel = (int) map(waterLevel, -10, 14, 0, 255);
 
-        state = SimulationState.PROMPT;
-
 //        noSmooth(); // Might make drawing faster
     }
 
     public void draw() {
-        switch (state) {
+//        Vector2<Integer> mousePosition = new Vector2<>(mouseX, mouseY);
+        
+        loadStaticMap();
 
-            case PROMPT:
-                promptSize();
-                break;
-            case LOADING:
-                loadStaticMap();
-
-                fill(255, 125, 0);
-                ellipse(map(92850, 56082, 101861, 0, width), map(436926, 447014, 428548, 40, height - 40), 10, 10);
-                break;
-            default:
-                // yooooo
-                break;
-        }
+        fill(255, 125, 0);
+        ellipse(map(92850, 56082, 101861, simulationArea.getX(), simulationArea.getWidth()), map(436926, 447014, 428548, simulationArea.getY(), simulationArea.getHeight()), 10, 10);
+        
+        ui.draw();
     }
 
     public void mousePressed() {
         Vector2<Integer> clickPosition = new Vector2<>(mouseX, mouseY);
-        buttonSizeLarge.checkClick(clickPosition);
-        buttonSizeSmall.checkClick(clickPosition);
+        ui.checkClick(clickPosition);
     }
 
     public void keyPressed() {
@@ -97,7 +115,7 @@ public class Canvas extends PApplet {
         if (keyCode == DOWN) {
             waterLevel -= 0.5f;
         }
-        
+
     }
 
     public void keyReleased() {
@@ -135,8 +153,8 @@ public class Canvas extends PApplet {
             // 3 = 62913, 438514
             // 4 = 93733, 431548
             Vector2<Float> mappedVector = new Vector2();
-            mappedVector.setX(map(vector.getX(), 56082, 101861, 0, width));
-            mappedVector.setY(map(vector.getY(), 447014, 428548, 40, height - 40));
+            mappedVector.setX(map(vector.getX(), 56082, 101861, simulationArea.getX(), simulationArea.getWidth()));
+            mappedVector.setY(map(vector.getY(), 447014, 428548, simulationArea.getY(), simulationArea.getHeight()));
 
             noStroke();
             int colorValue = (int) map(vector.getZ(), -10, 14, 0, 255);
@@ -154,7 +172,6 @@ public class Canvas extends PApplet {
     }
 
     private void promptSize() {
-        buttonSizeLarge.draw();
-        buttonSizeSmall.draw();
+        ui.draw();
     }
 }

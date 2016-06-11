@@ -15,10 +15,10 @@ import static processing.core.PConstants.TOP;
  *
  * @author swenm_000
  */
-public class UIElement {
-    private final int margin = 4;
+public abstract class UIElement {
+    private final int padding = 8;
     
-    private PApplet applet;
+    protected PApplet applet;
     
     protected String text;
     protected Rect<Integer> area;
@@ -33,15 +33,16 @@ public class UIElement {
     public UIElement(PApplet applet, String text, Vector2<Integer> position) {
         this.applet = applet;
         this.text = text;
-        this.area = new Rect<>(position.getX(), position.getY(), (int)applet.textWidth(text) + margin * 2, (int)applet.textAscent() + margin * 2);
+        this.area = new Rect<>(position.getX(), position.getY(), (int)applet.textWidth(text) + padding * 2, (int)applet.textAscent() + padding * 2);
     }
     
     public void draw() {
-        applet.stroke(0);
-        applet.fill(255);
-        applet.rect(area.getX(), area.getY(), area.getWidth(), area.getHeight());
-        applet.fill(0);
-        applet.textAlign(applet.LEFT, applet.TOP);
-        applet.text(text, area.getX() + margin, area.getY() + margin);
+        applet.textAlign(applet.CENTER, applet.TOP);
+        applet.text(text, area.getX() + area.getWidth() / 2, area.getY() + padding);
+    }
+    
+    public void setText(String text) {
+        this.text = text;
+        this.area = new Rect<>(area.getX(), area.getY(), (int)applet.textWidth(text) + padding * 2, (int)applet.textAscent() + padding * 2);
     }
 }
