@@ -27,9 +27,9 @@ public abstract class Clickable extends UIElement {
             onClick();
     }
     
-    protected abstract void onClick();
-    
-    private boolean isInArea(Vector2<Integer> clickPosition) {
-        return (area.getX() <= clickPosition.getX() && area.getX() + area.getWidth() >= clickPosition.getX() && area.getY() <= clickPosition.getY() && area.getY() + area.getHeight() >= clickPosition.getY());
+    public boolean isInArea(Vector2<Integer> mousePosition) {
+        return (area.getX() <= mousePosition.getX() && area.getX() + area.getWidth() >= mousePosition.getX() && area.getY() <= mousePosition.getY() && area.getY() + area.getHeight() >= mousePosition.getY());
     }
+    
+    protected abstract void onClick();
 }
