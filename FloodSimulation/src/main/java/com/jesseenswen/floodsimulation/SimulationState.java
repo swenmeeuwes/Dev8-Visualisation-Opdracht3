@@ -12,5 +12,7 @@ package com.jesseenswen.floodsimulation;
 public enum SimulationState {
     LOADING,
     DONE,
-    READY
+    READY,
+    RUNNING,
+    PAUSED
 }
