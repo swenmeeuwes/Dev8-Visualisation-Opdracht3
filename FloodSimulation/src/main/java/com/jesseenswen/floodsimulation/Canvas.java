@@ -6,6 +6,7 @@ import com.jesseenswen.floodsimulation.models.Vector2;
 import com.jesseenswen.floodsimulation.models.Vector3;
 import com.jesseenswen.floodsimulation.models.datastructures.comparators.DepthComparator;
 import com.jesseenswen.floodsimulation.ui.Button;
+import com.jesseenswen.floodsimulation.ui.ToggleButton;
 import com.jesseenswen.floodsimulation.ui.UIOverlay;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -19,15 +20,17 @@ import processing.core.PApplet;
  * @author swenm_000
  */
 public class Canvas extends PApplet {
-
+    public List<Vector3<Float>> data = Collections.synchronizedList(new ArrayList<Vector3<Float>>());
     public List<Vector3<Float>> data1000 = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // SynchronizedList is thread safe
     public List<Vector3<Float>> data500 = Collections.synchronizedList(new ArrayList<Vector3<Float>>());
     
     private UIOverlay ui;
     
-    private Rect<Integer> simulationArea = new Rect<>(0, 40, 500, 500);
+    private final Rect<Integer> simulationArea = new Rect<>(0, 40, 500, 500);
     private Rect<Integer> mappingArea = new Rect<>(56082, 447014, 101861, 428548); // X: 56082, 101861     Y: 447014, 428548
-    private Vector2<Integer> locationWijnhaven = new Vector2<>(92850, 436926);
+    private final Vector2<Integer> locationWijnhaven = new Vector2<>(92850, 436926);
+    
+    private float pixelSize = 1.0f;
 
     private DataProvider dataProvider;
     private int lastDrawnPoint = 0;
@@ -41,7 +44,6 @@ public class Canvas extends PApplet {
 //    private Thread staticMapThread;
     
     public void setup() {
-        mappingArea = new Rect<>(locationWijnhaven.getX() - 250, locationWijnhaven.getY() + 250, locationWijnhaven.getX() + 250, locationWijnhaven.getY() - 250);
         dataProvider = new DataProvider();
 
         Canvas canvas = this;
@@ -53,54 +55,10 @@ public class Canvas extends PApplet {
         });
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
-//        isFinished = false;
+        
+        mappingArea = new Rect<>(locationWijnhaven.getX() - 500, locationWijnhaven.getY() + 500, locationWijnhaven.getX() + 500, locationWijnhaven.getY() - 500);
 
-        ui = new UIOverlay(this);
-        ui.pushElement(new Button(this, "Size: 500", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 50)) {
-            @Override
-            public void onClick() {
-                // Switch to size: 500
-                mappingArea = new Rect<>(locationWijnhaven.getX() - 250, locationWijnhaven.getY() + 250, locationWijnhaven.getX() + 250, locationWijnhaven.getY() - 250);
-                clear();
-                lastDrawnPoint = 0;
-            }
-        });
-        ui.pushElement(new Button(this, "Size: 1000", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 100)) {
-            @Override
-            public void onClick() {
-                // Switch to size: 1000
-            }
-        });
-        ui.pushElement(new Button(this, "Increase water level", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 200)) {
-            @Override
-            public void onClick() {
-                waterLevel += 0.5f;
-            }
-        });
-        ui.pushElement(new Button(this, "Decrease water level", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 250)) {
-            @Override
-            public void onClick() {
-                waterLevel -= 0.5f;
-            }
-        });
-        ui.pushElement(new Button(this, "Play", new Vector2<>(simulationArea.getX() + 32, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
-            @Override
-            public void onClick() {
-                lastDrawnPoint = 0;
-            }
-        });
-        ui.pushElement(new Button(this, "Pause", new Vector2<>(simulationArea.getX() + 96, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
-            @Override
-            public void onClick() {
-                // Pause
-            }
-        });
-        ui.pushElement(new Button(this, "Stop", new Vector2<>(simulationArea.getX() + 156, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
-            @Override
-            public void onClick() {
-                // Pause
-            }
-        });
+        initUI();
 
         size(700, 600);
         clear();
@@ -108,8 +66,6 @@ public class Canvas extends PApplet {
         frame.setTitle("Jesse and Swen - Development 8 - Assignment 3 - Flood Simulation");
 
 //        mappedWaterLevel = (int) map(waterLevel, -10, 14, 0, 255);
-
-//        noSmooth(); // Might make drawing faster
     }
 
     public void draw() {
@@ -172,13 +128,19 @@ public class Canvas extends PApplet {
             // 3 = 62913, 438514
             // 4 = 93733, 431548
             Vector2<Float> mappedVector = new Vector2();
-            mappedVector.setX(map(vector.getX(), mappingArea.getX(), mappingArea.getWidth(), simulationArea.getX(), simulationArea.getWidth()));
-            mappedVector.setY(map(vector.getY(), mappingArea.getY(), mappingArea.getHeight(), simulationArea.getY(), simulationArea.getHeight()));
-            mappedVector.setX(map(vector.getX(), 92850f - 1000, 92850f + 1000, simulationArea.getX(), simulationArea.getWidth()));
-            mappedVector.setY(map(vector.getY(), 436926f + 1000, 436926f - 1000, simulationArea.getY(), simulationArea.getHeight()));
+            mappedVector.setX(map(vector.getX(), mappingArea.getX(), mappingArea.getWidth(), simulationArea.getX(), simulationArea.getX() + simulationArea.getWidth()));
+            if(mappedVector.getX() > simulationArea.getX() + simulationArea.getWidth()) {
+                lastDrawnPoint++;
+                continue;
+            }
+            mappedVector.setY(map(vector.getY(), mappingArea.getY(), mappingArea.getHeight(), simulationArea.getY(), simulationArea.getY() + simulationArea.getHeight()));
+            if(mappedVector.getY() > simulationArea.getY() + simulationArea.getHeight()) {
+                lastDrawnPoint++;
+                continue;
+            }
 
             noStroke();
-            int colorValue = (int) map(vector.getZ(), -10, 14, 0, 255);
+            int colorValue = (int) map(vector.getZ(), -10, 20, 0, 255); // 140 max maybe
             if (vector.getZ() > waterLevel) {
                 fill(0, colorValue, 255 - colorValue);
             } else //                fill(mappedWaterLevel - colorValue, 0, 0);
@@ -186,13 +148,75 @@ public class Canvas extends PApplet {
                 fill(255, 55, 0);
             }
 
-            ellipse(mappedVector.getX(), mappedVector.getY(), 1f, 1f); // Scale size with linesToSkip in dataprovider
-
+            ellipse(mappedVector.getX(), mappedVector.getY(), pixelSize, pixelSize); // Scale size with linesToSkip in dataprovider
             lastDrawnPoint++;
         }
     }
-
-    private void promptSize() {
-        ui.draw();
+    
+    private void initUI() {
+        ui = new UIOverlay(this);
+        ui.pushElement(new ToggleButton(this, "Size: 500", "Size: 1000", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 50)) {
+            @Override
+            public void onToggleOn() {
+                ui.clear();
+                // Switch to size: 1000
+                pixelSize = 1f;
+                mappingArea = new Rect<>(locationWijnhaven.getX() - 500, locationWijnhaven.getY() + 500, locationWijnhaven.getX() + 500, locationWijnhaven.getY() - 500);
+                clear();
+                lastDrawnPoint = 0;
+            }
+            
+            @Override
+            public void onToggleOff() {
+                ui.clear();
+                // Switch to size: 500
+                pixelSize = 2f;
+                mappingArea = new Rect<>(locationWijnhaven.getX() - 250, locationWijnhaven.getY() + 250, locationWijnhaven.getX() + 250, locationWijnhaven.getY() - 250);
+                clear();
+                lastDrawnPoint = 0;
+            }
+        });
+        ui.pushElement(new ToggleButton(this, "Smooth", "No smooth", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 100)) {
+            @Override
+            public void onToggleOn() {
+                noSmooth();
+            }
+            
+            @Override
+            public void onToggleOff() {
+                ui.clear();
+                smooth();
+            }
+        });
+        ui.pushElement(new Button(this, "Increase water level", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 200)) {
+            @Override
+            public void onClick() {
+                waterLevel += 0.5f;
+            }
+        });
+        ui.pushElement(new Button(this, "Decrease water level", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 250)) {
+            @Override
+            public void onClick() {
+                waterLevel -= 0.5f;
+            }
+        });      
+        ui.pushElement(new Button(this, "Play", new Vector2<>(simulationArea.getX() + 32, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
+            @Override
+            public void onClick() {
+                lastDrawnPoint = 0;
+            }
+        });
+        ui.pushElement(new Button(this, "Pause", new Vector2<>(simulationArea.getX() + 96, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
+            @Override
+            public void onClick() {
+                // Pause
+            }
+        });
+        ui.pushElement(new Button(this, "Stop", new Vector2<>(simulationArea.getX() + 156, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
+            @Override
+            public void onClick() {
+                // Pause
+            }
+        });
     }
 }
