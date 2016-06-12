@@ -89,79 +89,79 @@ public class DataProvider {
                 && HR_LOCATION.getY() < rdY + threshold && HR_LOCATION.getY() > rdY - threshold);
     }
 
-//    public void getDataAsyncFast(Canvas canvas) {
-//        int linesToSkip = 25;
-//
-//        Thread thread = new Thread(new Runnable() {
-//            public void run() {
-//                try {
-//                    ClassLoader classLoader = getClass().getClassLoader();
-//                    File fileWest = new File(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_west.csv").getFile());
-//
-//                    BufferedReader br = new BufferedReader(new InputStreamReader(fileWest.toURI().toURL().openStream()));
-//                    Iterator lines = br.lines().iterator();
-//
-//                    // Skip first line, these are the column names
-//                    lines.next();
-//                    while (lines.hasNext()) {
-//                        String line = (String) lines.next();
-//                        String[] values = line.split(",");
-//
-//                        Vector3<Float> vector = new Vector3<Float>();
-//                        vector.setX(Float.parseFloat(values[0]));
-//                        vector.setY(Float.parseFloat(values[1]));
-//                        vector.setZ(Float.parseFloat(values[2]));
-//                        canvas.data.add(vector);
-//
-//                        for (int i = 0; i < linesToSkip; i++) {
-//                            if (lines.hasNext()) {
-//                                lines.next();
-//                            }
-//                        }
-//                    }
-//                } catch (IOException e) {
-//                    System.err.println("IO Exception occured while reading the data!");
-//                }
-//            }
-//        });
-//        thread.setPriority(Thread.MIN_PRIORITY);
-//
-//        Thread thread2 = new Thread(new Runnable() {
-//            public void run() {
-//                try {
-//                    ClassLoader classLoader = getClass().getClassLoader();
-//                    File fileOost = new File(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_oost.csv").getFile());
-//
-//                    BufferedReader br = new BufferedReader(new InputStreamReader(fileOost.toURI().toURL().openStream()));
-//                    Iterator lines = br.lines().iterator();
-//
-//                    // Skip first line, these are the column names
-//                    lines.next();
-//                    while (lines.hasNext()) {
-//                        String line = (String) lines.next();
-//                        String[] values = line.split(",");
-//
-//                        Vector3<Float> vector = new Vector3<Float>();
-//                        vector.setX(Float.parseFloat(values[0]));
-//                        vector.setY(Float.parseFloat(values[1]));
-//                        vector.setZ(Float.parseFloat(values[2]));
-//                        canvas.data.add(vector);
-//
-//                        for (int i = 0; i < linesToSkip; i++) {
-//                            if (lines.hasNext()) {
-//                                lines.next();
-//                            }
-//                        }
-//                    }
-//                } catch (IOException e) {
-//                    System.err.println("IO Exception occured while reading the data!");
-//                }
-//            }
-//        });
-//        thread2.setPriority(Thread.MIN_PRIORITY);
-//        thread.start();
-//        thread2.start();
-//    }
+    public void getDataAsyncFast(Canvas canvas) {
+        int linesToSkip = 25;
+
+        Thread thread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    ClassLoader classLoader = getClass().getClassLoader();
+                    File fileWest = new File(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_west.csv").getFile());
+
+                    BufferedReader br = new BufferedReader(new InputStreamReader(fileWest.toURI().toURL().openStream()));
+                    Iterator lines = br.lines().iterator();
+
+                    // Skip first line, these are the column names
+                    lines.next();
+                    while (lines.hasNext()) {
+                        String line = (String) lines.next();
+                        String[] values = line.split(",");
+
+                        Vector3<Float> vector = new Vector3<Float>();
+                        vector.setX(Float.parseFloat(values[0]));
+                        vector.setY(Float.parseFloat(values[1]));
+                        vector.setZ(Float.parseFloat(values[2]));
+                        canvas.data.add(vector);
+
+                        for (int i = 0; i < linesToSkip; i++) {
+                            if (lines.hasNext()) {
+                                lines.next();
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println("IO Exception occured while reading the data!");
+                }
+            }
+        });
+        thread.setPriority(Thread.MIN_PRIORITY);
+
+        Thread thread2 = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    ClassLoader classLoader = getClass().getClassLoader();
+                    File fileOost = new File(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_oost.csv").getFile());
+
+                    BufferedReader br = new BufferedReader(new InputStreamReader(fileOost.toURI().toURL().openStream()));
+                    Iterator lines = br.lines().iterator();
+
+                    // Skip first line, these are the column names
+                    lines.next();
+                    while (lines.hasNext()) {
+                        String line = (String) lines.next();
+                        String[] values = line.split(",");
+
+                        Vector3<Float> vector = new Vector3<Float>();
+                        vector.setX(Float.parseFloat(values[0]));
+                        vector.setY(Float.parseFloat(values[1]));
+                        vector.setZ(Float.parseFloat(values[2]));
+                        canvas.data.add(vector);
+
+                        for (int i = 0; i < linesToSkip; i++) {
+                            if (lines.hasNext()) {
+                                lines.next();
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println("IO Exception occured while reading the data!");
+                }
+            }
+        });
+        thread2.setPriority(Thread.MIN_PRIORITY);
+        thread.start();
+        thread2.start();
+    }
 //
 //    public void getDataAsync(Canvas canvas) {
 //        int linesToSkip = 25;

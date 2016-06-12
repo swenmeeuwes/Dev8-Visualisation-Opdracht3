@@ -15,11 +15,11 @@ import processing.core.PApplet;
  * @author swenm_000
  */
 public class UIOverlay {
+
     private PApplet applet;
     private List<UIElement> elements;
-    
-//    private ClickListener clickListener;
 
+//    private ClickListener clickListener;
     public UIOverlay(PApplet applet) {
         this.applet = applet;
         elements = new ArrayList<>();
@@ -29,30 +29,41 @@ public class UIOverlay {
         this.applet = applet;
         this.elements = elements;
     }
-    
+
     public void draw() {
         Vector2<Integer> mousePosition = new Vector2<>(applet.mouseX, applet.mouseY);
         int cursorType = applet.ARROW;
         for (UIElement element : elements) {
             element.draw();
-            if(element instanceof Clickable)
-                if(((Clickable)element).isInArea(mousePosition))
+            if (element instanceof Clickable) {
+                if (((Clickable) element).isInArea(mousePosition)) {
                     cursorType = applet.HAND;
+                }
+            }
         }
         applet.cursor(cursorType);
     }
-    
-    public void checkClick(Vector2<Integer> clickPosition) {
+
+    public void clear() {
+        applet.fill(0);
+        applet.stroke(0);
         for (UIElement element : elements) {
-            if(element instanceof Clickable)
-                ((Clickable)element).checkClick(clickPosition);
+            applet.rect(element.area.getX(), element.area.getY(), element.area.getWidth(), element.area.getHeight());
         }
     }
-    
+
+    public void checkClick(Vector2<Integer> clickPosition) {
+        for (UIElement element : elements) {
+            if (element instanceof Clickable) {
+                ((Clickable) element).checkClick(clickPosition);
+            }
+        }
+    }
+
     public void pushElement(UIElement element) {
         elements.add(element);
     }
-    
+
     public void popElement(UIElement element) {
         elements.remove(element);
     }
