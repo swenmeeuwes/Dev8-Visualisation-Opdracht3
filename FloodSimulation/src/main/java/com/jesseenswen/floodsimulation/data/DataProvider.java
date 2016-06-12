@@ -32,15 +32,17 @@ public class DataProvider {
                 try {
                     ClassLoader classLoader = getClass().getClassLoader();
                     
-                    FileInputStream fileWest = new FileInputStream(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_west.csv").getFile());
+//                    FileInputStream fileWest = new FileInputStream(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_west.csv").getFile());
                     FileInputStream fileOost = new FileInputStream(classLoader.getResource("rotterdamopendata_hoogtebestandtotaal_oost.csv").getFile());
 
-                    SequenceInputStream seq = new SequenceInputStream(fileWest, fileOost);
+//                    SequenceInputStream seq = new SequenceInputStream(fileWest, fileOost);
 
-                    BufferedReader br = new BufferedReader(new InputStreamReader(seq));
+//                    BufferedReader br = new BufferedReader(new InputStreamReader(seq));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(fileOost));
                     Iterator lines = br.lines().iterator();
 
                     // Skip first line, these are the column names
+                    lines.next();
                   
                     while (lines.hasNext()) {
                         String line = (String) lines.next();
