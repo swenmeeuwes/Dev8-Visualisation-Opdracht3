@@ -10,8 +10,7 @@ package com.jesseenswen.floodsimulation;
  * @author swenm_000
  */
 public enum SimulationState {
-    PROMPT,
     LOADING,
-    RUNNING,
+    DONE,
     READY
 }

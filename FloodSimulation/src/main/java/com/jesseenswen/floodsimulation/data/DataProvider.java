@@ -1,6 +1,7 @@
 package com.jesseenswen.floodsimulation.data;
 
 import com.jesseenswen.floodsimulation.Canvas;
+import com.jesseenswen.floodsimulation.SimulationState;
 import com.jesseenswen.floodsimulation.models.Vector2;
 import java.util.List;
 import java.io.BufferedReader;
@@ -57,8 +58,9 @@ public class DataProvider {
                     }
                 } catch (IOException e) {
                     System.err.println("IO Exception occured while reading the data!");
+                } finally {
+                    canvas.state = SimulationState.DONE;
                 }
-
             }
         });
 
@@ -121,6 +123,8 @@ public class DataProvider {
                     }
                 } catch (IOException e) {
                     System.err.println("IO Exception occured while reading the data!");
+                } finally {
+                    canvas.state = SimulationState.DONE;
                 }
             }
         });
