@@ -22,7 +22,7 @@ import java.util.Collections;
 public class DataProvider {
 
     public void getDataAsyncFast(Canvas canvas) {
-        int linesToSkip = 25;
+        int linesToSkip = 5;
 
         Thread thread = new Thread(new Runnable() {
             public void run() {
