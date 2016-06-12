@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
+import javax.swing.JOptionPane;
 import processing.core.PApplet;
 import processing.core.PImage;
 
@@ -270,6 +271,14 @@ public class Canvas extends PApplet {
             @Override
             public void onClick() {
                 // Pause
+            }
+        });
+        ui.pushElement(new Button(this, "Save this image", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, simulationArea.getY() + simulationArea.getHeight()+ 12)){
+            @Override
+            public void onClick(){
+                PImage mapImage = get(simulationArea.getX(), simulationArea.getY(), simulationArea.getWidth(), simulationArea.getHeight());
+                mapImage.save("/target/screenshot.jpg");
+                JOptionPane.showMessageDialog(applet, "Your screenshot is saved in the /target folder.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         });
     }
