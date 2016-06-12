@@ -23,20 +23,24 @@ public class Canvas extends PApplet {
     public List<Vector3<Float>> data = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // SynchronizedList is thread safe
 
     private UIOverlay ui;
+    
     private Rect<Integer> simulationArea = new Rect<>(0, 40, 500, 500);
+    private Rect<Integer> mappingArea = new Rect<>(56082, 447014, 101861, 428548); // X: 56082, 101861     Y: 447014, 428548
+    private Vector2<Integer> locationWijnhaven = new Vector2<>(92850, 436926);
 
     private DataProvider dataProvider;
     private int lastDrawnPoint = 0;
-    private int mappedWaterLevel;
+//    private int mappedWaterLevel;
     private float waterLevel = -10f;
 
     private DepthComparator comparator = new DepthComparator();
 
-    private boolean isFinished = false;
+//    private boolean isFinished = false;
 
-    private Thread staticMapThread;
+//    private Thread staticMapThread;
     
     public void setup() {
+        mappingArea = new Rect<>(locationWijnhaven.getX() - 250, locationWijnhaven.getY() + 250, locationWijnhaven.getX() + 250, locationWijnhaven.getY() - 250);
         dataProvider = new DataProvider();
 
         Canvas canvas = this;
@@ -48,13 +52,16 @@ public class Canvas extends PApplet {
         });
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
-        isFinished = false;
+//        isFinished = false;
 
         ui = new UIOverlay(this);
         ui.pushElement(new Button(this, "Size: 500", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 50)) {
             @Override
             public void onClick() {
                 // Switch to size: 500
+                mappingArea = new Rect<>(locationWijnhaven.getX() - 250, locationWijnhaven.getY() + 250, locationWijnhaven.getX() + 250, locationWijnhaven.getY() - 250);
+                clear();
+                lastDrawnPoint = 0;
             }
         });
         ui.pushElement(new Button(this, "Size: 1000", new Vector2<>(simulationArea.getX() + simulationArea.getWidth()+ 12, 100)) {
@@ -81,13 +88,25 @@ public class Canvas extends PApplet {
                 lastDrawnPoint = 0;
             }
         });
+        ui.pushElement(new Button(this, "Pause", new Vector2<>(simulationArea.getX() + 96, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
+            @Override
+            public void onClick() {
+                // Pause
+            }
+        });
+        ui.pushElement(new Button(this, "Stop", new Vector2<>(simulationArea.getX() + 156, simulationArea.getY() + simulationArea.getHeight()+ 12)) {
+            @Override
+            public void onClick() {
+                // Pause
+            }
+        });
 
         size(700, 600);
         clear();
 
         frame.setTitle("Jesse and Swen - Development 8 - Assignment 3 - Flood Simulation");
 
-        mappedWaterLevel = (int) map(waterLevel, -10, 14, 0, 255);
+//        mappedWaterLevel = (int) map(waterLevel, -10, 14, 0, 255);
 
 //        noSmooth(); // Might make drawing faster
     }
@@ -98,7 +117,7 @@ public class Canvas extends PApplet {
         loadStaticMap();
 
         fill(255, 125, 0);
-        ellipse(map(92850, 56082, 101861, simulationArea.getX(), simulationArea.getWidth()), map(436926, 447014, 428548, simulationArea.getY(), simulationArea.getHeight()), 10, 10);
+        ellipse(map(locationWijnhaven.getX(), mappingArea.getX(), mappingArea.getWidth(), simulationArea.getX(), simulationArea.getWidth()), map(locationWijnhaven.getY(), mappingArea.getY(), mappingArea.getHeight(), simulationArea.getY(), simulationArea.getHeight()), 10, 10);
         
         ui.draw();
     }
@@ -138,12 +157,11 @@ public class Canvas extends PApplet {
         while (dataLength > lastDrawnPoint) {
             Vector3<Float> vector = data.get(lastDrawnPoint);
 
-            if (vector == null) {
-                System.out.println("!@#$ at " + lastDrawnPoint);
-                lastDrawnPoint++;
-                continue;
-            }
-
+//            if(vector.getX() < mappingArea.getX() || vector.getX() > mappingArea.getX() || vector.getY() > mappingArea.getY() || vector.getY() < mappingArea.getHeight()) {
+//                lastDrawnPoint++;
+//                continue;
+//            }
+            
             // Area size?????
             // 1 --- 2
             // |     |
@@ -153,8 +171,8 @@ public class Canvas extends PApplet {
             // 3 = 62913, 438514
             // 4 = 93733, 431548
             Vector2<Float> mappedVector = new Vector2();
-            mappedVector.setX(map(vector.getX(), 56082, 101861, simulationArea.getX(), simulationArea.getWidth()));
-            mappedVector.setY(map(vector.getY(), 447014, 428548, simulationArea.getY(), simulationArea.getHeight()));
+            mappedVector.setX(map(vector.getX(), mappingArea.getX(), mappingArea.getWidth(), simulationArea.getX(), simulationArea.getWidth()));
+            mappedVector.setY(map(vector.getY(), mappingArea.getY(), mappingArea.getHeight(), simulationArea.getY(), simulationArea.getHeight()));
 
             noStroke();
             int colorValue = (int) map(vector.getZ(), -10, 14, 0, 255);
