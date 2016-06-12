@@ -38,6 +38,7 @@ public abstract class UIElement {
     
     public void draw() {
         applet.textAlign(applet.CENTER, applet.TOP);
+        applet.textSize(12);
         applet.text(text, area.getX() + area.getWidth() / 2, area.getY() + padding);
     }
     
