@@ -192,7 +192,7 @@ public class Canvas extends PApplet {
         text("Simulation state: " + state.toString(), simulationArea.getX() + simulationArea.getWidth() + 12, 120);
         text("Loading record: " + data1000.size(), simulationArea.getX() + simulationArea.getWidth() + 12, 120 + 16);
         text("Drawing point: " + lastDrawnPoint, simulationArea.getX() + simulationArea.getWidth() + 12, 120 + 16 * 2);
-        text("Water level: " + Math.round(waterLevel * 100f) / 100f, simulationArea.getX() + simulationArea.getWidth() + 12, 120 + 16 * 4);
+        text("Water level: " + Math.round(waterLevel * 100f) / 100f + " meter", simulationArea.getX() + simulationArea.getWidth() + 12, 120 + 16 * 4);
 
         noFill();
         stroke(255);
