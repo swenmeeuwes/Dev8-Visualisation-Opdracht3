@@ -98,12 +98,14 @@ public class Canvas extends PApplet {
                 ellipse(map(locationWijnhaven.getX(), mappingArea.getX(), mappingArea.getWidth(), simulationArea.getX(), simulationArea.getX() + simulationArea.getWidth()), map(locationWijnhaven.getY(), mappingArea.getY(), mappingArea.getHeight(), simulationArea.getY(), simulationArea.getY() + simulationArea.getHeight()), 10, 10);
                 break;
             case RUNNING:
-                new Thread(new Runnable() {
-                    public void run() {
-                        drawWater();
-                        waterLevel += waterIncrement;
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    public void run() {
+//                        drawWater();
+//                        waterLevel += waterIncrement;
+//                    }
+//                }).start();
+                drawWater();
+                waterLevel += waterIncrement;
                 break;
             default:
                 break;
