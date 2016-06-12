@@ -20,8 +20,9 @@ import processing.core.PApplet;
  */
 public class Canvas extends PApplet {
 
-    public List<Vector3<Float>> data = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // SynchronizedList is thread safe
-
+    public List<Vector3<Float>> data1000 = Collections.synchronizedList(new ArrayList<Vector3<Float>>()); // SynchronizedList is thread safe
+    public List<Vector3<Float>> data500 = Collections.synchronizedList(new ArrayList<Vector3<Float>>());
+    
     private UIOverlay ui;
     private Rect<Integer> simulationArea = new Rect<>(0, 40, 500, 500);
 
@@ -43,7 +44,7 @@ public class Canvas extends PApplet {
 
         Thread thread = new Thread(new Runnable() {
             public void run() {
-                dataProvider.getDataAsyncFast(canvas);
+                dataProvider.getDataAsyncFastSplitList(canvas);
             }
         });
         thread.setPriority(Thread.MIN_PRIORITY);
@@ -98,7 +99,7 @@ public class Canvas extends PApplet {
         loadStaticMap();
 
         fill(255, 125, 0);
-        ellipse(map(92850, 56082, 101861, simulationArea.getX(), simulationArea.getWidth()), map(436926, 447014, 428548, simulationArea.getY(), simulationArea.getHeight()), 10, 10);
+        ellipse(map(92850, 92850f - 1000, 92850f + 1000, simulationArea.getX(), simulationArea.getWidth()), map(436926, 436926f - 1000, 436926f + 1000, simulationArea.getY(), simulationArea.getHeight()), 10, 10);
         
         ui.draw();
     }
@@ -130,13 +131,13 @@ public class Canvas extends PApplet {
         fill(0);
         textSize(12);
         textAlign(LEFT, TOP);
-        text("Loading record " + data.size() + "      Drawing point: " + lastDrawnPoint + "      Water level: " + waterLevel, 8, 8);
+        text("Loading record " + data1000.size() + "      Drawing point: " + lastDrawnPoint + "      Water level: " + waterLevel, 8, 8);
 
-        int dataLength = data.size();
+        int dataLength = data1000.size();
 
         // Load until there's no data left
         while (dataLength > lastDrawnPoint) {
-            Vector3<Float> vector = data.get(lastDrawnPoint);
+            Vector3<Float> vector = data1000.get(lastDrawnPoint);
 
             if (vector == null) {
                 System.out.println("!@#$ at " + lastDrawnPoint);
@@ -153,8 +154,8 @@ public class Canvas extends PApplet {
             // 3 = 62913, 438514
             // 4 = 93733, 431548
             Vector2<Float> mappedVector = new Vector2();
-            mappedVector.setX(map(vector.getX(), 56082, 101861, simulationArea.getX(), simulationArea.getWidth()));
-            mappedVector.setY(map(vector.getY(), 447014, 428548, simulationArea.getY(), simulationArea.getHeight()));
+            mappedVector.setX(map(vector.getX(), 92850f - 1000, 92850f + 1000, simulationArea.getX(), simulationArea.getWidth()));
+            mappedVector.setY(map(vector.getY(), 436926f + 1000, 436926f - 1000, simulationArea.getY(), simulationArea.getHeight()));
 
             noStroke();
             int colorValue = (int) map(vector.getZ(), -10, 14, 0, 255);
